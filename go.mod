@@ -1,4 +1,4 @@
-module github.com/x-qdo/otelwrapper
+module github.com/x-qdo/otelwrapper/v2
 
 go 1.23
 
