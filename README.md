@@ -41,7 +41,7 @@ So, as you can see we initiate new global `tracesdk.TracerProvider` here and set
 Under the hood `InitTracerProvider()` creates an instance of OTLP Exporter. Please pay your attention that you must set `OTEL_EXPORTER_OTLP_ENDPOINT` to as its environment variable.
 For example,
 ```bash
-OTEL_EXPORTER_OTLP_ENDPOINT="http://127.0.0.1:4318"
+OTEL_EXPORTER_OTLP_ENDPOINT="0.0.0.0:4317"
 ```
 
 If you don't want to use OTLP as your span delivery, then you have to create an exporter by yourself. For example, you need Jaeger:

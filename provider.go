@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
 	"sync"
 )
 
@@ -17,11 +17,13 @@ import (
 // the  exporters (OTLP by default) that will send spans to the provided url. The returned
 // TracerProvider will also use a Resource configured with all the information
 // about the application.
-func InitTracerProvider(serviceName, namespace string, exporters ...tracesdk.SpanExporter) (*tracesdk.TracerProvider, error) {
+func InitTracerProvider(serviceName, namespace string, exporters ...tracesdk.SpanExporter) (
+	*tracesdk.TracerProvider, error,
+) {
 	opts := make([]tracesdk.TracerProviderOption, 0)
 
 	if len(exporters) == 0 {
-		client := otlptracehttp.NewClient()
+		client := otlptracegrpc.NewClient()
 		exp, err := otlptrace.New(context.Background(), client)
 		if err != nil {
 			return nil, err
@@ -34,12 +36,16 @@ func InitTracerProvider(serviceName, namespace string, exporters ...tracesdk.Spa
 		opts = append(opts, tracesdk.WithBatcher(exp))
 	}
 
-	// Record information about this application in an Resource.
-	opts = append(opts, tracesdk.WithResource(resource.NewWithAttributes(
-		semconv.SchemaURL,
-		semconv.ServiceNameKey.String(serviceName),
-		semconv.ServiceNamespaceKey.String(namespace),
-	)))
+	// Record information about this application in a Resource.
+	opts = append(
+		opts, tracesdk.WithResource(
+			resource.NewWithAttributes(
+				semconv.SchemaURL,
+				semconv.ServiceNameKey.String(serviceName),
+				semconv.ServiceNamespaceKey.String(namespace),
+			),
+		),
+	)
 	tp := tracesdk.NewTracerProvider(opts...)
 
 	// Register our TracerProvider as the global so any imported
