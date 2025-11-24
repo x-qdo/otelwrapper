@@ -3,6 +3,8 @@ package otelwrapper
 import (
 	"context"
 	"fmt"
+	"sync"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -10,11 +12,10 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
-	"sync"
 )
 
 // InitTracerProvider returns an OpenTelemetry TracerProvider configured to use
-// the  exporters (OTLP by default) that will send spans to the provided url. The returned
+// the exporters (OTLP by default) that will send spans to the provided url. The returned
 // TracerProvider will also use a Resource configured with all the information
 // about the application.
 func InitTracerProvider(serviceName, namespace string, exporters ...tracesdk.SpanExporter) (
